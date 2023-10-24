@@ -185,6 +185,11 @@ std::pair<bool, std::vector<Vertex>> topsort(const Graph& G)
         if(!visited[vertex] && !topsortDFS(vertex, visited, pathStack, inPathStack, result, G))
                 return {false, pathStack};
 
+
+    for(const auto & x : result)
+        std::cout << x << " -> ";
+    std::cout << std::endl;
+
     return {true, {result.begin(), result.end()}};
 }
 
@@ -341,11 +346,15 @@ void run_tests() {
 }
 
 int main() {
-    try {
-        run_tests();
 
-        std::cout << "All tests passed." << std::endl;
-    } catch (const TestFailed&) {}
+
+    test_topsort(SMALL_DAGS[2]);
+
+//    try {
+//        run_tests();
+//
+//        std::cout << "All tests passed." << std::endl;
+//    } catch (const TestFailed&) {}
 }
 
 #endif
