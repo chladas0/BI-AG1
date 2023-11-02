@@ -32,9 +32,7 @@ struct Ref {
   private:
   std::set<T> _data;
 };
-
 #endif
-
 
 namespace config {
   // Enable to check that the tree is AVL balanced.
@@ -44,21 +42,28 @@ namespace config {
   inline constexpr bool PARENT_POINTERS = true;
 }
 
+
 template < typename T >
 struct Tree {
-  size_t size() const {return AVLSize;}
 
-  const T * find(const T& value) const
-  {
-      Node * current = root;
-      while(current)
-      {
-          if(current->equal(value))
-              return &current->key;
-          current = value < current->key ? current->left : current->right;
-      }
-      return nullptr;
-  }
+    ~Tree()
+    {
+        delete root;
+    }
+
+    size_t size() const {return AVLSize;}
+
+    const T * find(const T& value) const
+    {
+        Node * current = root;
+        while(current)
+        {
+            if(current->equal(value))
+                return &current->key;
+            current = value < current->key ? current->left : current->right;
+        }
+        return nullptr;
+    }
     struct Node;
 
     int getHeight(Node * node)
@@ -101,7 +106,7 @@ struct Tree {
 
         // Update heights
         x->height = std::max(getHeight(x->left), getHeight(x->right)) + 1;
-        y->height = std::max(getHeight(y->left), getHeight(x)) + 1;
+        y->height = std::max(getHeight(y->left), getHeight(y->right)) + 1;
     }
 
     void rightRotate(Node * x)
@@ -126,7 +131,7 @@ struct Tree {
         y->right = x;
 
         x->height = std::max(getHeight(x->left), getHeight(x->right)) + 1;
-        y->height = std::max(getHeight(y->left), getHeight(x)) + 1;
+        y->height = std::max(getHeight(y->left), getHeight(y->left)) + 1;
     }
 
     bool insert(T value)
@@ -145,6 +150,7 @@ struct Tree {
         *insertPos = new Node(value, parent);
         ++AVLSize;
 
+        // balance the tree
         for(Node * node = (*insertPos)->parent; node; node = node->parent) {
             node->height = 1 + std::max(getHeight(node->left), getHeight(node->right));
 
@@ -154,18 +160,18 @@ struct Tree {
             if(balance == 2 && value < node->left->key)
                 rightRotate(node);
 
-            // right heave and came from R
+            // right heavy and came from R
             else if (balance == -2 && value > node->right->key)
                 leftRotate(node);
 
-            // left heavy and came from L
+            // left heavy and came from R
             else if(balance == 2 && value > node->left->key)
             {
                 leftRotate(node->left);
                 rightRotate(node);
             }
 
-            // right heavy and came from R
+            // right heavy and came from L
             else if(balance == -2 && value < node->right->key)
             {
                 rightRotate(node->right);
@@ -175,7 +181,6 @@ struct Tree {
             if(balancedAsAllThingsShouldBe(getBalance(node)))
                 break;
         }
-
         return true;
     }
 
@@ -207,13 +212,37 @@ struct Tree {
                 toDelete->right->parent = toDelete->parent;
 
               *deletePos = (*deletePos)->left ? (*deletePos)->left : (*deletePos)->right;
-              toDelete->left = toDelete->right = nullptr;
 
+              // balance the tree
+              for(Node * node = toDelete->parent; node; node = node->parent)
+              {
+                  node->height = 1 + std::max(getHeight(node->left), getHeight(node->right));
+                  int balance = getBalance(node);
+                  int balanceRight = getBalance(node->right);
+                  int balanceLeft = getBalance(node->left);
+
+                  if(balance == 2 && balanceLeft >= 0)
+                      rightRotate(node);
+                  else if(balance == -2 && balanceRight <= 0)
+                      leftRotate(node);
+                  else if(balance == 2 && balanceLeft < 0)
+                  {
+                      leftRotate(node->left);
+                      rightRotate(node);
+                  }
+                  else if(balance == -2 && balanceRight > 0)
+                  {
+                      rightRotate(node->right);
+                      leftRotate(node);
+                  }
+                  else
+                      if(balance == 1 || balance == -1)
+                          break;
+              }
+
+              toDelete->left = toDelete->right = nullptr;
               delete toDelete;
               AVLSize--;
-
-              // todo rebalance the tree
-
               return true;
           }
           deletePos = value < (*deletePos)->key ? &(*deletePos)->left : &(*deletePos)->right;
@@ -224,13 +253,12 @@ struct Tree {
 struct Node
 {
     explicit Node(T value, Node * parent) :
-    key(std::move(value)), parent(parent){}
+    parent(parent), right(nullptr), left(nullptr),
+    key(std::move(value)), height(1){}
 
     ~Node(){delete left; delete right;}
 
-    Node * parent = nullptr;
-    Node * right = nullptr;
-    Node * left = nullptr;
+    Node * parent, * right, * left;
     T key;
     int height = 1;
 
@@ -253,7 +281,6 @@ struct Node
 
   int AVLSize = 0;
   Node * root = nullptr;
-
 };
 
 
@@ -389,7 +416,7 @@ void test_insert() {
   for (int i = -10; i < 20; i++) t.find(i);
 
   for (int i = 0; i < 10; i++) t.insert((1 + i * 7) % 17, true);
-//  for (int i = -10; i < 20; i++) t.find(i);
+  for (int i = -10; i < 20; i++) t.find(i);
 }
 
 void test_erase() {
@@ -444,20 +471,20 @@ int main() {
     std::cout << "Insert test..." << std::endl;
     test_insert();
 
-//    std::cout << "Erase test..." << std::endl;
-//    test_erase();
-//
-//    std::cout << "Tiny random test..." << std::endl;
-//    test_random(20, CHECK_TREE);
-//
-//    std::cout << "Small random test..." << std::endl;
-//    test_random(200, CHECK_TREE);
-//
-//    std::cout << "Big random test..." << std::endl;
-//    test_random(50'000);
-//
-//    std::cout << "Big sequential test..." << std::endl;
-//    test_random(50'000, SEQ);
+    std::cout << "Erase test..." << std::endl;
+    test_erase();
+
+    std::cout << "Tiny random test..." << std::endl;
+    test_random(20, CHECK_TREE);
+
+    std::cout << "Small random test..." << std::endl;
+    test_random(200, CHECK_TREE);
+
+    std::cout << "Big random test..." << std::endl;
+    test_random(50'000);
+
+    std::cout << "Big sequential test..." << std::endl;
+    test_random(50'000, SEQ);
 
     std::cout << "All tests passed." << std::endl;
   } catch (const TestFailed& e) {
