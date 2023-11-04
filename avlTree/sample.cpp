@@ -65,7 +65,7 @@ struct Tree {
     }
     struct Node;
 
-    int getHeight(Node * node)
+    static int getHeight(Node * node)
     {
         return node ? node->height : 0;
     }
@@ -104,8 +104,8 @@ struct Tree {
         y->left = x;
 
         // Update heights
-        x->height = std::max(getHeight(x->left), getHeight(x->right)) + 1;
-        y->height = std::max(getHeight(y->left), getHeight(y->right)) + 1;
+        x->updateHeight();
+        y->updateHeight();
     }
 
     void rightRotate(Node * x)
@@ -129,8 +129,8 @@ struct Tree {
         x->left = y->right;
         y->right = x;
 
-        x->height = std::max(getHeight(x->left), getHeight(x->right)) + 1;
-        y->height = std::max(getHeight(y->left), getHeight(y->right)) + 1;
+        x->updateHeight();
+        y->updateHeight();
     }
 
     bool insert(T value)
@@ -149,11 +149,11 @@ struct Tree {
         *insertPos = new Node(value, parent);
         ++AVLSize;
 
-
         // balance the tree
-        for(Node * node = (*insertPos)->parent; node; node = node->parent)
+        for(Node * node = (*insertPos)->parent; node; node = parent)
         {
-            node->height = 1 + std::max(getHeight(node->left), getHeight(node->right));
+            parent = node->parent;
+            node->updateHeight();
 
             int balance = getBalance(node);
 
@@ -214,26 +214,27 @@ struct Tree {
 
               *deletePos = (*deletePos)->left ? (*deletePos)->left : (*deletePos)->right;
 
-              Node * X;
-              Node * prev = nullptr;
-              int b = -1;
+              Node * parent;
+              int ySign = -1;
 
               // balance the tree
-              for(Node * node = toDelete->parent; node;prev = node, node = X)
+              for(Node * node = toDelete->parent; node; node = parent)
               {
-                  X = node->parent;
+                  parent = node->parent;
+                  node->updateHeight();
 
-                  if(node->left == prev && getBalance(node) == -2)
-                        b = getBalance(node->right);
-
-                  if(node->right == prev && getBalance(node) == 2)
-                      b = getBalance(node->left);
-
-                  node->height = 1 + std::max(getHeight(node->left), getHeight(node->right));
                   int balance = getBalance(node);
                   int balanceRight = getBalance(node->right);
                   int balanceLeft = getBalance(node->left);
 
+                  if(balance == -2)
+                      ySign = balanceRight;
+
+                  if(balance == 2)
+                      ySign = balanceLeft;
+
+
+                  // rotation is required
                   if(balance == 2 && balanceLeft >= 0)
                       rightRotate(node);
                   else if(balance == -2 && balanceRight <= 0)
@@ -248,12 +249,8 @@ struct Tree {
                       rightRotate(node->right);
                       leftRotate(node);
                   }
-                  else
-                  {
-                      if(balance == 1 || balance == -1)
-                          break;
-                  }
-                  if(b == 0)
+
+                  if(balance == 1 || balance == -1 || ySign == 0)
                       break;
               }
 
@@ -274,6 +271,11 @@ struct Node
     key(std::move(value)), height(1){}
 
     ~Node(){delete left; delete right;}
+
+    void updateHeight()
+    {
+        height = std::max(getHeight(left), getHeight(right)) + 1;
+    }
 
     Node * parent, * right, * left;
     T key;
@@ -502,7 +504,6 @@ int main() {
 
     std::cout << "Big sequential test..." << std::endl;
     test_random(50'000, SEQ);
-    std::cout << counter << std::endl;
 
     std::cout << "All tests passed." << std::endl;
   } catch (const TestFailed& e) {
