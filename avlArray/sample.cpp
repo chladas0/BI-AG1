@@ -287,20 +287,28 @@ struct Array {
                   if(balance == 2)
                       ySign = balanceLeft;
 
+                  // right heavy and came from R
                   if(balance == 2 && balanceLeft >= 0)
                       rightRotate(node);
+
+                  // left heavy and came from L
                   else if(balance == -2 && balanceRight <= 0)
                       leftRotate(node);
+
+                  // left heavy and came from R
                   else if(balance == 2 && balanceLeft == -1)
                   {
                       leftRotate(node->left);
                       rightRotate(node);
                   }
+
+                  // right heavy and came from L
                   else if(balance == -2 && balanceRight == 1)
                   {
                       rightRotate(node->right);
                       leftRotate(node);
                   }
+
                   if(balance == 1 || balance == -1 || ySign == 0)
                       break;
               }
