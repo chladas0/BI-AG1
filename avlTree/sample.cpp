@@ -233,17 +233,19 @@ struct Tree {
                   if(balance == 2)
                       ySign = balanceLeft;
 
-
                   // rotation is required
                   if(balance == 2 && balanceLeft >= 0)
                       rightRotate(node);
+
                   else if(balance == -2 && balanceRight <= 0)
                       leftRotate(node);
+
                   else if(balance == 2 && balanceLeft < 0)
                   {
                       leftRotate(node->left);
                       rightRotate(node);
                   }
+
                   else if(balance == -2 && balanceRight > 0)
                   {
                       rightRotate(node->right);
