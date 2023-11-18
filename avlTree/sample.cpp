@@ -197,9 +197,9 @@ struct Tree {
 
               if ((*deletePos)->left && (*deletePos)->right)
               {
-                  deletePos = &(*deletePos)->left;
-                  while ((*deletePos)->right)
-                      deletePos = &((*deletePos)->right);
+                  deletePos = &(*deletePos)->right;
+                  while ((*deletePos)->left)
+                      deletePos = &((*deletePos)->left);
 
                   toOverwrite->key = (*deletePos)->key;
               }
@@ -266,7 +266,25 @@ struct Tree {
       return false;
   }
 
-struct Node
+  void print(){ printRec("", root, false);}
+  // https://stackoverflow.com/questions/36802354/print-binary-tree-in-a-pretty-way-using-c
+  void printRec(const std::string& prefix, const Node* node, bool isLeft)
+  {
+      if( node != nullptr )
+      {
+          std::cout << prefix;
+          std::cout << (isLeft ? "├──" : "└──" );
+
+          // print the value of the node
+          std::cout << node->key << std::endl;
+
+          // enter the next tree level - left and right branch
+          printRec( prefix + (isLeft ? "│   " : "    "), node->right, true);
+          printRec( prefix + (isLeft ? "│   " : "    "), node->left, false);
+      }
+  }
+
+    struct Node
 {
     explicit Node(T value, Node * parent) :
     parent(parent), right(nullptr), left(nullptr),
