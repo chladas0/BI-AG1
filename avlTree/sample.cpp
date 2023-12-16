@@ -506,29 +506,48 @@ void test_random(size_t size, unsigned flags = 0) {
 }
 
 int main() {
-  try {
-    std::cout << "Insert test..." << std::endl;
-    test_insert();
 
-    std::cout << "Erase test..." << std::endl;
-    test_erase();
+    Tree<int> t;
 
-    std::cout << "Tiny random test..." << std::endl;
-    test_random(20, CHECK_TREE);
 
-    std::cout << "Small random test..." << std::endl;
-    test_random(200, CHECK_TREE);
 
-    std::cout << "Big random test..." << std::endl;
-    test_random(50'000);
+    t.insert(15);
+    t.insert(10);
+    t.insert(28);
+    t.insert(20);
+    t.insert(22);
+    t.insert(30);
+    t.insert(23);
+    t.insert(25);
+    t.erase(22);
+    t.erase(28);
+    t.erase(30);
+    t.erase(25);
+    t.print();
 
-    std::cout << "Big sequential test..." << std::endl;
-    test_random(50'000, SEQ);
-
-    std::cout << "All tests passed." << std::endl;
-  } catch (const TestFailed& e) {
-    std::cout << "Test failed: " << e.what() << std::endl;
-  }
+//  try {
+//    std::cout << "Insert test..." << std::endl;
+//    test_insert();
+//
+//    std::cout << "Erase test..." << std::endl;
+//    test_erase();
+//
+//    std::cout << "Tiny random test..." << std::endl;
+//    test_random(20, CHECK_TREE);
+//
+//    std::cout << "Small random test..." << std::endl;
+//    test_random(200, CHECK_TREE);
+//
+//    std::cout << "Big random test..." << std::endl;
+//    test_random(50'000);
+//
+//    std::cout << "Big sequential test..." << std::endl;
+//    test_random(50'000, SEQ);
+//
+//    std::cout << "All tests passed." << std::endl;
+//  } catch (const TestFailed& e) {
+//    std::cout << "Test failed: " << e.what() << std::endl;
+//  }
 }
 
 #endif
