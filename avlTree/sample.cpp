@@ -150,38 +150,38 @@ struct Tree {
         ++AVLSize;
 
         // balance the tree
-        for(Node * node = (*insertPos)->parent; node; node = parent)
-        {
-            parent = node->parent;
-            node->updateHeight();
+        /* for(Node * node = (*insertPos)->parent; node; node = parent) */
+        /* { */
+        /*     parent = node->parent; */
+        /*     node->updateHeight(); */
 
-            int balance = getBalance(node);
+        /*     int balance = getBalance(node); */
 
-            // left heavy and came from L
-            if(balance == 2 && value < node->left->key)
-                rightRotate(node);
+        /*     // left heavy and came from L */
+        /*     if(balance == 2 && value < node->left->key) */
+        /*         rightRotate(node); */
 
-            // right heavy and came from R
-            else if (balance == -2 && value > node->right->key)
-                leftRotate(node);
+        /*     // right heavy and came from R */
+        /*     else if (balance == -2 && value > node->right->key) */
+        /*         leftRotate(node); */
 
-            // left heavy and came from R
-            else if(balance == 2 && value > node->left->key)
-            {
-                leftRotate(node->left);
-                rightRotate(node);
-            }
+        /*     // left heavy and came from R */
+        /*     else if(balance == 2 && value > node->left->key) */
+        /*     { */
+        /*         leftRotate(node->left); */
+        /*         rightRotate(node); */
+        /*     } */
 
-            // right heavy and came from L
-            else if(balance == -2 && value < node->right->key)
-            {
-                rightRotate(node->right);
-                leftRotate(node);
-            }
+        /*     // right heavy and came from L */
+        /*     else if(balance == -2 && value < node->right->key) */
+        /*     { */
+        /*         rightRotate(node->right); */
+        /*         leftRotate(node); */
+        /*     } */
 
-            if(balancedAsAllThingsShouldBe(getBalance(node)))
-                break;
-        }
+        /*     if(balancedAsAllThingsShouldBe(getBalance(node))) */
+        /*         break; */
+        /* } */
         return true;
     }
 
@@ -268,7 +268,7 @@ struct Tree {
 
   void print(){ printRec("", root, false);}
   // https://stackoverflow.com/questions/36802354/print-binary-tree-in-a-pretty-way-using-c
-  void printRec(const std::string& prefix, const Node* node, bool isLeft)
+  void printRec(std::string prefix, const Node* node, bool isLeft)
   {
       if( node != nullptr )
       {
@@ -509,14 +509,14 @@ int main() {
 
     Tree<int> t;
 
-    t.insert(13);
-    t.insert(5);
-    t.insert(1);
+    t.insert(20);
     t.insert(10);
-    t.insert(18);
-    t.insert(17);
-    t.insert(15);
-    t.insert(16);
+    t.insert(31);
+    t.insert(110);
+    t.insert(5);
+    t.insert(125);
+    t.insert(100);
+    t.insert(7);
     t.print();
 
 
